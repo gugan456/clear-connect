@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recycle Collectors Directory</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background: #2b7a78;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .menu-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+
+    .card {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .rewards {
+      background: #def3f2;
+      border-left: 4px solid #2b7a78;
+      padding: 1rem;
+      margin: 2rem 0;
+      border-radius: 6px;
+    }
+
+    input,
+    select,
+    button {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #2b7a78;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+    }
+
+    /* Profile setup form */
+    #profileSetup {
+      max-width: 400px;
+      margin: 3rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    #profileSetup h2 {
+      color: #2b7a78;
+      margin-bottom: 1rem;
+    }
+
+    #profileSetup input {
+      width: 100%;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .upload-container {
+      margin: 2rem auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Recycle Material Collectors Directory</h1>
+    <button class="menu-btn" onclick="window.location.href='profile.html'">⋮</button>
+  </header>
+
+  <!-- Profile Setup Form (only shown first time) -->
+  <div id="profileSetup" style="display:none;">
+    <h2>Set up your profile</h2>
+    <input type="text" id="name" placeholder="Enter your name" required>
+    <input type="email" id="email" placeholder="Enter your email" required>
+    <input type="tel" id="phone" placeholder="Enter your phone number" required>
+    <button onclick="saveProfile()">Save Profile</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container" id="mainContent" style="display:none;">
+    <div class="rewards">
+      <h2>♻️ Green Points System</h2>
+      <ul>
+        <li>1 kg Plastic = <strong>10 Green Points</strong></li>
+        <li>1 kg Paper = <strong>10 Green Points</strong></li>
+        <li>5 kg Solid Metal = <strong>10 Green Points</strong></li>
+        <li>5 kg Glass = <strong>10 Green Points</strong></li>
+        <li>10 kg E-Waste = <strong>10 Green Points</strong></li>
+      </ul>
+    </div>
+
+    <div id="collectorList"></div>
+
+    <!-- Upload only -->
+    <div class="upload-container">
+      <h3>📤Upload geo-tagged photos of dumping sites </h3>
+      <input type="file" id="fileUpload">
+      <button onclick="uploadFile()">Upload</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // File upload function (placeholder for now)
+    function uploadFile() {
+      const fileInput = document.getElementById("fileUpload");
+      if (!fileInput.files.length) {
+        alert("Please select a file first!");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      alert("Selected file: " + file.name);
+    }
+  </script>
+</body>
+
+</html>
