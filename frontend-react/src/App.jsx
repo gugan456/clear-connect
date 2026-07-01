@@ -41,16 +41,53 @@ function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Initialize and Sync Pathname for backward compatibility
+  // Map a view name to its URL path (kept in sync with backend routes)
+  const getPathForView = (v) =>
+    v === 'profile' ? '/profile.html' : v === 'calculator' ? '/calculator.html' : '/';
+
+  // Navigate between views while keeping browser history consistent, so the
+  // browser/device back button always returns to the home (directory) page.
+  const navigate = (targetView) => {
+    setView(targetView);
+    const currentView = (window.history.state && window.history.state.view) || 'directory';
+    const path = getPathForView(targetView);
+    if (currentView === 'directory' && targetView !== 'directory') {
+      // Going from home into a sub-page: push so back returns home.
+      window.history.pushState({ view: targetView }, '', path);
+    } else {
+      // Switching between sub-pages (or returning home): replace the top of the
+      // stack so the home entry stays directly beneath every sub-page.
+      window.history.replaceState({ view: targetView }, '', path);
+    }
+  };
+
+  // Initialize view from the URL and seed history so back leads to home even on
+  // a deep link to a sub-page.
   useEffect(() => {
     const path = window.location.pathname;
+    let initial = 'directory';
     if (path.includes('profile')) {
-      setView('profile');
+      initial = 'profile';
     } else if (path.includes('calculate') || path.includes('calculator')) {
-      setView('calculator');
-    } else {
-      setView('directory');
+      initial = 'calculator';
     }
+    setView(initial);
+    if (initial === 'directory') {
+      window.history.replaceState({ view: 'directory' }, '', '/');
+    } else {
+      window.history.replaceState({ view: 'directory' }, '', '/');
+      window.history.pushState({ view: initial }, '', getPathForView(initial));
+    }
+  }, []);
+
+  // Handle browser/device back (and forward) button.
+  useEffect(() => {
+    const onPopState = (e) => {
+      const v = (e.state && e.state.view) || 'directory';
+      setView(v);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   // Fetch Collectors list on mount
@@ -143,7 +180,7 @@ function App() {
         setEmail(savedEmail);
         setUserToken(data.token);
         setUser(data.user);
-        setView('directory');
+        navigate('directory');
         setAuthInputs({ name: '', email: '', phone: '', password: '' });
         showToast(authMode === 'register' ? 'Registration successful!' : 'Logged in successfully!', 'success');
       } else {
@@ -162,7 +199,7 @@ function App() {
     e.preventDefault();
     if (!email || !userToken) {
       showToast('Please register a profile first!', 'warning');
-      setView('directory');
+      navigate('directory');
       return;
     }
 
@@ -223,7 +260,7 @@ function App() {
       setEmail('');
       setUserToken('');
       setUser(null);
-      setView('directory');
+      navigate('directory');
       showToast('Logged out successfully.', 'info');
     }
   };
@@ -380,14 +417,14 @@ function App() {
       {/* Floating Modern Header */}
       <header>
         <div style={{ display: 'flex', width: '100%', maxWidth: '850px', justifyContent: 'space-between', alignItems: 'center', margin: '0 auto' }}>
-          <h1 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setView('directory')}>
+          <h1 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => navigate('directory')}>
             <span>🌱</span> clear.connect
           </h1>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <span 
               style={{ fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', color: view === 'directory' ? '#ffffff' : '#a2dedb', transition: 'var(--transition-fast)' }}
-              onClick={() => setView('directory')}
+              onClick={() => navigate('directory')}
             >
               Directory
             </span>
@@ -397,7 +434,7 @@ function App() {
                 setCalcResult('');
                 setShowProceed(false);
                 setCalcInputs({ plastic: '', paper: '', metal: '', glass: '', ewaste: '' });
-                setView('calculator');
+                navigate('calculator');
               }}
             >
               Calculator
@@ -405,7 +442,7 @@ function App() {
             
             <div 
               style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'rgba(255,255,255,0.12)', padding: '4px 12px 4px 6px', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.15)' }}
-              onClick={() => setView('profile')}
+              onClick={() => navigate('profile')}
             >
               <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#ffffff', color: 'var(--color-primary-dark)', fontSize: '0.85rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center' }}>
                 {getUserInitials()}
@@ -460,7 +497,7 @@ function App() {
               setCalcResult('');
               setShowProceed(false);
               setCalcInputs({ plastic: '', paper: '', metal: '', glass: '', ewaste: '' });
-              setView('calculator');
+              navigate('calculator');
             }}>
               Open Calculator 🌱
             </button>
@@ -498,7 +535,7 @@ function App() {
                       setCalcResult('');
                       setShowProceed(false);
                       setCalcInputs({ plastic: '', paper: '', metal: '', glass: '', ewaste: '' });
-                      setView('calculator');
+                      navigate('calculator');
                     }}
                   >
                     View Details
@@ -606,13 +643,13 @@ function App() {
             {calcResult && <div id="result">{calcResult}</div>}
 
             {showProceed && (
-              <button className="btn" style={{ background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)', boxShadow: 'var(--shadow-accent)', marginTop: '0.5rem' }} onClick={() => setView('profile')}>
+              <button className="btn" style={{ background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)', boxShadow: 'var(--shadow-accent)', marginTop: '0.5rem' }} onClick={() => navigate('profile')}>
                 See Profile Details
               </button>
             )}
 
-            <button className="btn btn-secondary" style={{ marginTop: '0.5rem' }} onClick={() => setView('directory')}>
-              Back to Directory
+            <button className="btn btn-secondary" style={{ marginTop: '0.5rem' }} onClick={() => navigate('directory')}>
+              ⬅ Back to Home
             </button>
           </div>
         </div>
@@ -666,8 +703,8 @@ function App() {
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-              <button className="btn" style={{ flex: 1 }} onClick={() => setView('directory')}>
-                ⬅ Back to Directory
+              <button className="btn" style={{ flex: 1 }} onClick={() => navigate('directory')}>
+                ⬅ Back to Home
               </button>
               <button className="btn logout-btn" style={{ flex: 1 }} onClick={handleLogout}>
                 🚪 Logout
